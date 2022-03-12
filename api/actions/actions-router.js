@@ -2,6 +2,7 @@
 const express = require('express');
 
 const Actions = require('./actions-model');
+const { requireNotes } = require('./actions-middlware');
 
 const router = express.Router();
 
@@ -29,11 +30,14 @@ router.get('/:id', (req, res) => {
     })
 })
 
-router.post('/', (req, res) => {
+router.post('/', requireNotes, (req, res) => {
 
-    if(!req.body.notes){
-        res.status(400).json({ message: 'req.body missing notes'})
-    }
+    //Created middleware to supplement this code.
+    /*********************************************/
+    // if(!req.body.notes){
+    //     res.status(400).json({ message: 'req.body missing notes'})
+    //     return;
+    // }
 
     Actions.insert(req.body)
     .then(resp => {
@@ -73,7 +77,6 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
     Actions.get(req.params.id)
     .then(resp => {
-        console.log(resp)
         if(resp){
             Actions.remove(req.params.id)
             .then(innerResp => {
@@ -90,12 +93,5 @@ router.delete('/:id', (req, res) => {
         res.status(500).json({ message: 'Server Error: could not delete' })
     })
 })
-
-
-
-//UNCOMMENT THIS AFTER YOU CREATE THE actions-middleware.js
-//import all methos from actions-middlware.js
-// const { } = require('./actions-middlware');
-
 
 module.exports = router;

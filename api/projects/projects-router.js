@@ -2,13 +2,13 @@
 const express = require('express');
 
 const Projects = require('./projects-model');
+const { validateBody } = require('./projects-middleware');
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
     Projects.get()
     .then(resp => {
-        // console.log('This works');
         res.status(200).json(resp);
     })
     .catch(error => {
@@ -19,7 +19,6 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
     Projects.get(req.params.id)
     .then(resp => {
-        console.log(resp);
         if(resp){
             res.status(201).json(resp);
         } else{
@@ -31,15 +30,16 @@ router.get('/:id', (req, res) => {
     })
 })
 
-router.post('/', (req, res) => {
-    if(!req.body.name || !req.body.description){
-        res.status(400).json({ message: 'Please provide name and description'})
-        return;
-    }
+router.post('/', validateBody, (req, res) => {
+    //Supplemented this code in the middleware
+    /*****************************************/
+    // if(!req.body.name || !req.body.description){
+    //     res.status(400).json({ message: 'Please provide name and description'})
+    //     return;
+    // }
     
     Projects.insert(req.body)
     .then(project => {
-        console.log('Project created')
         res.status(201).json(project);
     })
     .catch(error => {
@@ -48,27 +48,18 @@ router.post('/', (req, res) => {
 })
 
 router.put('/:id', (req, res) => {
-    console.log(req.body)
-    if(!req.body.name || !req.body.description){
-        res.status(400).json({ message: 'name and description neccisary' })
+
+    if (req.body.completed == null || req.body.name == null || req.body.description == null) {
+        res.status(400).json({
+          message: "Provide completed status for the project",
+        });
         return;
     }
-    
-    // if(!req.body.name || !req.body.description){
-    //     // res.status(400).json({ message: 'You need to provide a name and description in the body of the request' })
-    //     // return;
-
-    //     console.log('Pleasseeeeee worekrjekj');
-    // }
 
     Projects.update(req.params.id, req.body)
-    .then(resp => {
-        console.log('This works');
-        res.status(201).json(resp);
-    })
-    .catch(error => {
-        res.status(500).json({ message: 'Server Error, could not update.' })
-    })
+        .then((resp) => {
+            res.status(200).json(resp);
+        })
 })
 
 router.delete('/:id', (req, res) => {
@@ -76,7 +67,6 @@ router.delete('/:id', (req, res) => {
     Projects.get(req.params.id)
     .then(resp => {
         if(resp){
-            console.log('there is a project with that id')
             Projects.remove(req.params.id)
             .then(resp => {
                 res.status(200).json({ message: 'deleted'})
@@ -97,8 +87,6 @@ router.get('/:id/actions', (req, res) => {
     Projects.get(req.params.id)
     .then(resp => {
         if(resp){
-            // console.log('resp')
-            // res.status(200).json(resp);
             Projects.getProjectActions(req.params.id)
             .then(innerResp => {
                 res.status(200).json(innerResp);
@@ -111,10 +99,6 @@ router.get('/:id/actions', (req, res) => {
         res.status(500).json({ message: 'Server Error: could not get actions' })
     })
 })
-
-//UNCOMMENT THIS AFTER YOU CREATE THE projects-middleware.js
-//import all methos from projects-middlware.js
-// const { } = require('./projects-middlware');
 
 
 module.exports = router;
