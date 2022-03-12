@@ -19,11 +19,11 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
     Projects.get(req.params.id)
     .then(resp => {
-        if(req.params.id){
+        if(resp){
             console.log(resp)
             res.status(201).json(resp);
         } else{
-            console.log('222222')
+            res.status(404)
         }
     })
     .catch(error => {
