@@ -30,6 +30,11 @@ router.get('/:id', (req, res) => {
 })
 
 router.post('/', (req, res) => {
+
+    if(!req.body.notes){
+        res.status(400).json({ message: 'req.body missing notes'})
+    }
+
     Actions.insert(req.body)
     .then(resp => {
         res.status(200).json(resp)
@@ -68,10 +73,11 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
     Actions.get(req.params.id)
     .then(resp => {
+        console.log(resp)
         if(resp){
-            Actions.delete(req.params.id)
+            Actions.remove(req.params.id)
             .then(innerResp => {
-                res.status(200)
+                res.status(200).json({ message: 'deleted'})
             })
             .catch(error => {
                 res.status(500).json({ message: 'Server error - could not delete'})

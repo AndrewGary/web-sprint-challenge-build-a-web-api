@@ -19,11 +19,11 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
     Projects.get(req.params.id)
     .then(resp => {
+        console.log(resp);
         if(resp){
-            console.log(resp)
             res.status(201).json(resp);
         } else{
-            res.status(404)
+            res.status(404).json({ message: 'could not find a project with that id' })
         }
     })
     .catch(error => {
@@ -48,10 +48,18 @@ router.post('/', (req, res) => {
 })
 
 router.put('/:id', (req, res) => {
+    console.log(req.body)
     if(!req.body.name || !req.body.description){
-        res.status(400).json({ message: 'You need to provide a name and description in the body of the request' })
+        res.status(400).json({ message: 'name and description neccisary' })
         return;
     }
+    
+    // if(!req.body.name || !req.body.description){
+    //     // res.status(400).json({ message: 'You need to provide a name and description in the body of the request' })
+    //     // return;
+
+    //     console.log('Pleasseeeeee worekrjekj');
+    // }
 
     Projects.update(req.params.id, req.body)
     .then(resp => {
@@ -77,7 +85,7 @@ router.delete('/:id', (req, res) => {
                 res.status(500).json({ message: 'Server Error, could not delete' })
             })
         } else{
-            console.log('there was not a project with that id')
+            res.status(404).json({ message: 'No project with that id' })
         }
     })
     .catch(error => {
